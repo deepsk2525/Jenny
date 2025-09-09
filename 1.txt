@@ -1,0 +1,27 @@
+import requests
+
+# API URL
+url = "https://newsapi.org/v2/top-headlines?country=us&apiKey=869c2995e40d4336a0f2dcd5cdcd009b"
+
+# Send the GET request
+r = requests.get(url)
+
+# Check if the request was successful
+if r.status_code == 200:
+    data = r.json()  # Convert response to JSON
+    articles = data.get("articles", [])  # Get the list of articles
+    
+    if articles:
+        print("🔹 Top Headlines:\n")
+        for i, article in enumerate(articles[:10], start=1):  # Show top 10
+            print(f"{i}. {article['title']}")
+            print(f"   📰 Source: {article['source']['name']}")
+            print(f"   🔗 URL: {article['url']}\n")
+    else:
+        print("No headlines found.")
+else:
+    print(f"❌ Error {r.status_code}: {r.text}")
+
+
+
+api key = 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
