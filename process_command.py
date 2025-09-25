@@ -1,77 +1,84 @@
 import webbrowser
-import pyttsx3
 import requests
 import musiclibrary
 import pywhatkit
 import re
 from chat import get_answer
+import random
 
-def processCommand(c):
-    if c.lower() == "open google":
-        pyttsx3.speak("Opening Google")
+def processCommand(c: str) -> str:
+    """Process user command and return text for display."""
+
+    user_greetings = ["hey", "hii", "hello", "hello there!", "hi", "heyy", "hola", "yo"]
+    bot_replies = [
+        "Hey there! How's it going?",
+        "Hello! Nice to see you 😃",
+        "Hi It's Jenny! What's up?",
+        "Hey I'm Jenny! How are you doing today?",
+        "Hii, hope you're having a great day!",
+        "Hello there, friend!",
+        "Yo! Glad you're here 😎",
+        "Hey hey! How’s everything?",
+        "Hello! How can I assist you today?",
+    ]
+    word = ["jenny"]
+    replyy = ["hmmmmm hmmmmm", "yes?", "how can I help you?", "at your service", "what's up?"]
+
+    c_low = c.lower().strip()
+
+    # --- Website shortcuts ---
+    if c_low == "open google":
         webbrowser.open("https://google.com")
-    elif c.lower() == "open youtube":
-        pyttsx3.speak("Opening Youtube")
+        return "Opening Google"
+
+    elif c_low == "open youtube":
         webbrowser.open("https://youtube.com/")
-    elif c.lower() == "open facebook":
-        pyttsx3.speak("Opening facebook")
+        return "Opening YouTube"
+
+    elif c_low == "open facebook":
         webbrowser.open("https://facebook.com/")
-    elif c.lower() == "open linkedin":
-        pyttsx3.speak("Opening linkedin")
+        return "Opening Facebook"
+
+    elif c_low == "open linkedin":
         webbrowser.open("https://linkedin.com/")
-    elif c.lower() == "open netmirror":
-        pyttsx3.speak("Opening netmirror")
+        return "Opening LinkedIn"
+
+    elif c_low == "open netmirror":
         webbrowser.open("https://netmirror.app/1/en")
-    elif "play" in c.lower() or "song" in c.lower():
+        return "Opening Netmirror"
+
+    # --- Greetings ---
+    elif c_low in word:
+        return random.choice(replyy)
+
+    elif c_low in [g.lower() for g in user_greetings]:
+        return random.choice(bot_replies)
+
+    # --- Play music ---
+    elif "play" in c_low or "song" in c_low:
         name = re.sub(r"\b(play|song|on youtube)\b", "", c, flags=re.IGNORECASE).strip()
         if name:
-            pyttsx3.speak(f"Playing {name} on youtube")
             pywhatkit.playonyt(name)
+            return f"Playing {name} on YouTube"
         else:
-            pyttsx3.speak("Please specify the song name.")
-    elif "news" in c.lower():
+            return "Please specify the song name."
+
+    # --- News ---
+    elif "news" in c_low:
         url = "https://newsapi.org/v2/top-headlines?country=us&apiKey=869c2995e40d4336a0f2dcd5cdcd009b"
-        response = requests.get(url)
-        data = response.json()
-        articles = data.get("articles", [])
-        if articles:
-            pyttsx3.speak("Here are the top headlines:")
-            for article in articles[:5]:  # Limit to top 5 headlines
-                headline = article.get("title")
-                if headline:
-                    pyttsx3.speak(headline)
-        else:
-            pyttsx3.speak("Sorry, I couldn't fetch the news right now.")
+        try:
+            response = requests.get(url)
+            data = response.json()
+            articles = data.get("articles", [])
+            if articles:
+                headlines = [article.get("title") for article in articles[:5] if article.get("title")]
+                return "Top headlines:\n" + "\n".join(headlines)
+            else:
+                return "Sorry, I couldn't fetch the news right now."
+        except Exception:
+            return "Error while fetching news."
 
+    # --- Default: fall back to web search / QA ---
     else:
-        get_answer(c)
-
-    
-
-
-    # else: #"search" in c.lower() or "what is" in c.lower():
-    #     query = c.lower().replace("search", "").strip() or c.lower().replace("what is", "").strip()
-    #     if "search" in c.lower() or "what is" in c.lower():
-    #         if query:
-    #             pyttsx3.speak(f"Searching {query}")
-    #         url = f"https://chatgpt.com/?q={query.replace(' ', '+')}"
-    #         webbrowser.open(url)
-    #         pyttsx3.speak("Here is what I found.")
-
-    #     else:
-    #         if "your name" in c.lower():
-    #             reply = "My name is Jenny."
-    #         elif "how are you" in c.lower():
-    #             reply = "I'm doing great! How about you?"
-    #         elif "hello" in c.lower() or "hi" in c.lower():
-    #             reply = "Hello there! How can i help you ?"
-    #         elif "what can you do" in c.lower():
-    #             reply = "I can help you with various tasks like opening websites, playing music, fetching news, and answering questions."
-    #         elif "what are you doing" in c.lower():
-    #             reply = "nothing!, apna kaam kar rahi hoon"
-    #         else:
-    #             reply = "I'm Jenny, your assistant, but I don't know that yet."
-
-    #         print(f"Jenny: {reply}")
-    #         pyttsx3.speak(reply)
-
+        reply = get_answer(c)
+        return reply if reply else "Sorry, I didn’t understand that."
