@@ -26,7 +26,6 @@ def processCommand(c: str) -> str:
 
     c_low = c.lower().strip()
 
-    # --- Website shortcuts ---
     if c_low == "open google":
         webbrowser.open("https://google.com")
         return "Opening Google"
@@ -54,7 +53,6 @@ def processCommand(c: str) -> str:
     elif c_low in [g.lower() for g in user_greetings]:
         return random.choice(bot_replies)
 
-    # --- Play music ---
     elif "play" in c_low or "song" in c_low:
         name = re.sub(r"\b(play|song|on youtube)\b", "", c, flags=re.IGNORECASE).strip()
         if name:
@@ -63,7 +61,6 @@ def processCommand(c: str) -> str:
         else:
             return "Please specify the song name."
 
-    # --- News ---
     elif "news" in c_low:
         url = "https://newsapi.org/v2/top-headlines?country=us&apiKey=869c2995e40d4336a0f2dcd5cdcd009b"
         try:
@@ -78,7 +75,6 @@ def processCommand(c: str) -> str:
         except Exception:
             return "Error while fetching news."
 
-    # --- Default: fall back to web search / QA ---
     else:
         reply = get_answer(c)
         return reply if reply else "Sorry, I didn’t understand that."

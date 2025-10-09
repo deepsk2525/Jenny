@@ -3,24 +3,31 @@ from process_command import processCommand
 
 app = Flask(__name__)
 
+
 @app.route("/")
-def index():
+def home():
+    """Render the main chat interface."""
     return render_template("index.html")
 
-@app.route("/chat", methods=["POST"])
-def chat():
-    data = request.get_json()
-    user_message = data.get("message", "")
 
-    if not user_message.strip():
-        return jsonify({"reply": "Please type something."})
+@app.route("/chat", methods=["POST"])
+def handle_chat():
+    """Receive user message and return Jenny's reply."""
+    payload = request.get_json(silent=True) or {}
+    message = payload.get("message", "").strip()
+
+    if not message:
+        return jsonify({"reply": "Please enter a message before sending."})
 
     try:
-        reply = processCommand(user_message)
-    except Exception as e:
-        reply = f"⚠️ Error: {str(e)}"
+        response_text = processCommand(message)
+    except Exception as error:
+        # Log or handle unexpected errors gracefully
+        response_text = f"Something went wrong: {error}"
 
-    return jsonify({"reply": reply})
+    return jsonify({"reply": response_text})
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Run in debug mode for development only
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -2,19 +2,12 @@ import sys
 import time
 import traceback
 from typing import List, Tuple
-
-# --- Web Search & Scrape ---
 from duckduckgo_search import DDGS
 import trafilatura
 
-# --- Chat model (no OpenAI key) ---
 import g4f
 
-# =========================
-# Utilities
-# =========================
-
-def web_search(query: str, max_results: int = 6) -> List[Tuple[str, str]]:
+def search(query: str, max_results: int = 6) -> List[Tuple[str, str]]:
     """Search the web and return [(title, url), ...]."""
     out = []
     with DDGS() as ddgs:
@@ -97,9 +90,6 @@ def summarize_with_gpt(query: str, docs: List[Tuple[str, str, str]], max_chars: 
 def choose_sources(results: List[Tuple[str, str]], limit: int = 3) -> List[Tuple[str, str]]:
     return results[:limit]
 
-# =========================
-# Main Jenny loop
-# =========================
 
 def run_Jenny():
     print("🤖 Internet-powered Chat Jenny (no OpenAI key)")
@@ -115,7 +105,7 @@ def run_Jenny():
                 break
 
             print("🔍 Searching the web...")
-            results = web_search(query, max_results=8)
+            results = search(query, max_results=8)
             if not results:
                 print("Jenny: I couldn't find results for that right now.")
                 continue
@@ -142,7 +132,7 @@ def run_Jenny():
 def get_answer(query: str) -> str:
     try:
         print(f"🔍 Searching the web for: {query}")
-        results = web_search(query, max_results=8)
+        results = search(query, max_results=8)
         if not results:
             return "No results found."
 
