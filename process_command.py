@@ -1,10 +1,15 @@
 import webbrowser
 import requests
 import musiclibrary
-import pywhatkit
 import re
 from chat import get_answer
 import random
+try:
+    import pywhatkit
+except Exception:
+    pywhatkit = None
+    print("pywhatkit disabled (no display environment available)")
+
 
 def processCommand(c: str) -> str:
     """Process user command and return text for display."""
@@ -56,10 +61,18 @@ def processCommand(c: str) -> str:
     elif "play" in c_low or "song" in c_low:
         name = re.sub(r"\b(play|song|on youtube)\b", "", c, flags=re.IGNORECASE).strip()
         if name:
-            pywhatkit.playonyt(name)
-            return f"Playing {name} on YouTube"
+            if pywhatkit:  # Only run if pywhatkit successfully imported
+                try:
+                    pywhatkit.playonyt(name)
+                    return f"Playing {name} on YouTube"
+                except Exception as e:
+                    print(f"pywhatkit failed: {e}")
+                    return f"Unable to play '{name}' on YouTube (unsupported environment)."
+            else:
+                return f"Cannot play '{name}' on YouTube — this feature is unavailable on Render."
         else:
             return "Please specify the song name."
+
 
     elif "news" in c_low:
         url = "https://newsapi.org/v2/top-headlines?country=us&apiKey=869c2995e40d4336a0f2dcd5cdcd009b"

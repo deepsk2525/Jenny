@@ -29,5 +29,4 @@ def handle_chat():
 
 
 if __name__ == "__main__":
-    # Run in debug mode for development only
     app.run(host="0.0.0.0", port=5000, debug=True)
